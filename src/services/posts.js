@@ -1,6 +1,10 @@
 import { supabase } from "../lib/supabase"
 
-// 🔽 buscar posts do banco
+function montarUrlPublica(caminho) {
+  const { data } = supabase.storage.from("post-images").getPublicUrl(caminho)
+  return data.publicUrl
+}
+
 export async function buscarPosts() {
   const { data, error } = await supabase
     .from("posts")
@@ -8,27 +12,44 @@ export async function buscarPosts() {
     .order("created_at", { ascending: false })
 
   if (error) {
-    console.error(error)
-    return []
+    console.error("ERRO AO BUSCAR POSTS:", error)
+    throw new Error(error.message)
   }
 
-  // gera URL da imagem
-  return data.map((post) => {
-    const { data: urlData } = supabase
-      .storage
-      .from("post-images")
-      .getPublicUrl(post.image_path)
-
-    return {
-      ...post,
-      image_url: urlData.publicUrl,
-    }
-  })
+  return data.map((post) => ({
+    ...post,
+    image_url: post.image_path ? montarUrlPublica(post.image_path) : "",
+    video_url: post.video_path ? montarUrlPublica(post.video_path) : "",
+    gallery_urls: Array.isArray(post.gallery_paths)
+      ? post.gallery_paths.map((path) => montarUrlPublica(path))
+      : [],
+  }))
 }
 
-// 🔽 upload da imagem
+export async function buscarPostPorId(id) {
+  const { data, error } = await supabase
+    .from("posts")
+    .select("*")
+    .eq("id", id)
+    .single()
+
+  if (error) {
+    console.error("ERRO AO BUSCAR POST:", error)
+    throw new Error(error.message)
+  }
+
+  return {
+    ...data,
+    image_url: data.image_path ? montarUrlPublica(data.image_path) : "",
+    video_url: data.video_path ? montarUrlPublica(data.video_path) : "",
+    gallery_urls: Array.isArray(data.gallery_paths)
+      ? data.gallery_paths.map((path) => montarUrlPublica(path))
+      : [],
+  }
+}
+
 export async function uploadImagem(file) {
-  const nome = `${Date.now()}-${file.name}`
+  const nome = `${Date.now()}-${Math.random().toString(36).slice(2)}-${file.name}`
   const caminho = `posts/${nome}`
 
   const { error } = await supabase.storage
@@ -36,43 +57,134 @@ export async function uploadImagem(file) {
     .upload(caminho, file)
 
   if (error) {
-    console.error(error)
-    throw new Error("Erro ao enviar imagem")
+    console.error("ERRO NO UPLOAD DA IMAGEM:", error)
+    throw new Error(error.message)
   }
 
   return caminho
 }
 
-// 🔽 criar post
-export async function criarPost({ title, description, imagePath, author }) {
+export async function uploadMultiplasImagens(files) {
+  const caminhos = []
+
+  for (const file of files) {
+    const caminho = await uploadImagem(file)
+    caminhos.push(caminho)
+  }
+
+  return caminhos
+}
+
+export async function uploadVideo(file) {
+  const nome = `${Date.now()}-${Math.random().toString(36).slice(2)}-${file.name}`
+  const caminho = `videos/${nome}`
+
+  const { error } = await supabase.storage
+    .from("post-images")
+    .upload(caminho, file)
+
+  if (error) {
+    console.error("ERRO NO UPLOAD DO VÍDEO:", error)
+    throw new Error(error.message)
+  }
+
+  return caminho
+}
+
+export async function criarPost({
+  title,
+  description,
+  imagePath,
+  galleryPaths,
+  videoPath,
+  author,
+  category,
+  isFeatured,
+}) {
   const { error } = await supabase.from("posts").insert([
     {
       title,
       description,
       image_path: imagePath,
+      gallery_paths: galleryPaths,
+      video_path: videoPath,
       author_name: author,
+      category,
+      is_featured: isFeatured,
     },
   ])
 
   if (error) {
-    console.error(error)
-    throw new Error("Erro ao criar post")
+    console.error("ERRO AO CRIAR POST:", error)
+    throw new Error(error.message)
   }
 }
 
-// 🔽 excluir post
-export async function excluirPostBanco(id, imagePath) {
-  // apaga imagem
-  await supabase.storage.from("post-images").remove([imagePath])
+export async function editarPostBanco({
+  id,
+  title,
+  description,
+  imagePath,
+  galleryPaths,
+  videoPath,
+  category,
+  isFeatured,
+}) {
+  const updateData = {
+    title,
+    description,
+    category,
+    is_featured: isFeatured,
+    updated_at: new Date().toISOString(),
+  }
 
-  // apaga do banco
+  if (imagePath) {
+    updateData.image_path = imagePath
+  }
+
+  if (galleryPaths) {
+    updateData.gallery_paths = galleryPaths
+  }
+
+  if (videoPath) {
+    updateData.video_path = videoPath
+  }
+
   const { error } = await supabase
+    .from("posts")
+    .update(updateData)
+    .eq("id", id)
+
+  if (error) {
+    console.error("ERRO AO EDITAR POST:", error)
+    throw new Error(error.message)
+  }
+}
+
+export async function excluirPostBanco(id, imagePath, galleryPaths = []) {
+  const arquivos = []
+
+  if (imagePath) arquivos.push(imagePath)
+  if (Array.isArray(galleryPaths)) arquivos.push(...galleryPaths)
+
+  if (arquivos.length > 0) {
+    const { error: erroImagem } = await supabase.storage
+      .from("post-images")
+      .remove(arquivos)
+
+    if (erroImagem) {
+      console.error("ERRO AO APAGAR IMAGENS:", erroImagem)
+      throw new Error(erroImagem.message)
+    }
+  }
+
+  const { error: erroBanco } = await supabase
     .from("posts")
     .delete()
     .eq("id", id)
 
-  if (error) {
-    console.error(error)
-    throw new Error("Erro ao excluir")
+  if (erroBanco) {
+    console.error("ERRO AO APAGAR POST:", erroBanco)
+    throw new Error(erroBanco.message)
   }
 }
