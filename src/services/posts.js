@@ -48,6 +48,21 @@ export async function buscarPostPorId(id) {
   }
 }
 
+// NOVA FUNÇÃO: Conta a quantidade total de postagens na tabela
+export async function contarProjetos() {
+  try {
+    const { count, error } = await supabase
+      .from("posts")
+      .select("*", { count: "exact", head: true });
+
+    if (error) throw error;
+    return count || 0;
+  } catch (error) {
+    console.error("ERRO AO CONTAR PROJETOS:", error);
+    return 0;
+  }
+}
+
 export async function uploadImagem(file) {
   const nome = `${Date.now()}-${Math.random().toString(36).slice(2)}-${file.name}`
   const caminho = `posts/${nome}`
@@ -138,17 +153,9 @@ export async function editarPostBanco({
     updated_at: new Date().toISOString(),
   }
 
-  if (imagePath) {
-    updateData.image_path = imagePath
-  }
-
-  if (galleryPaths) {
-    updateData.gallery_paths = galleryPaths
-  }
-
-  if (videoPath) {
-    updateData.video_path = videoPath
-  }
+  if (imagePath) updateData.image_path = imagePath
+  if (galleryPaths) updateData.gallery_paths = galleryPaths
+  if (videoPath) updateData.video_path = videoPath
 
   const { error } = await supabase
     .from("posts")
