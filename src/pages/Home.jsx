@@ -26,18 +26,18 @@ const INTEGRANTES = [
   "Emelly Vitória",
   "Douglas Eduardo",
   "Maiza Cássia",
-  "Maria Eduarda Lins Rocha Santos",
+  "Maria Eduarda Lins",
   "Emilly Gabrielly",
-  "—",
-  "—",
-  "—",
-  "—",
-  "—",
-  "—",
-  "—",
-  "—",
-  "—",
-  "—",
+  "Vinicius Barbosa",
+  "Bianca Maria",
+  "Elaine da Silva",
+  "Luan dos Santos",
+  "Nayara Ruani",
+  "Sirlaine Mendes",
+  "Ingredi",
+  "Rayssa Vieira",
+  "Maria Eduarda da Silva",
+  "Ana Beatriz",
 ]
 
 const CATEGORIAS = [
@@ -759,7 +759,7 @@ export default function Home() {
                 <button
                   onClick={() => abrirImagem(post.image_url)}
                   className="block w-full text-left"
-                >
+                >A
                   <img
                     src={post.image_url}
                     alt={post.title}
@@ -1486,7 +1486,7 @@ export default function Home() {
                 disabled={excluindo}
                 className="bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white font-semibold px-6 py-3 rounded-xl transition"
               >
-                {excluindo ? "Excluindo..." : "Confirmar exclusão"}
+                {excluindo ? "Excluindo..." : "Confirma"}
               </button>
 
               <button

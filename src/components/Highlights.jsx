@@ -7,8 +7,7 @@ export default function Highlights() {
     },
     {
       titulo: "Projetos práticos",
-      texto:
-        "Desenvolvemos atividades reais, como plantio, cuidado com espaços verdes e projetos com tecnologia.",
+      
     },
     {
       titulo: "Participação estudantil",

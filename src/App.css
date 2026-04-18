@@ -182,3 +182,22 @@
     border-right-color: var(--border);
   }
 }
+
+/* --- ESTILO DA BARRA DE ROLAGEM DO ROBSCHAT --- */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px; /* Deixa a barra mais grossinha e fácil de clicar */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f4f8f4; /* Cor de fundo clarinha combinando com o chat */
+  border-radius: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #15803d; /* Cor verde-700 da Liga EPEM */
+  border-radius: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #166534; /* Fica um verde mais escuro quando passa o mouse */
+}

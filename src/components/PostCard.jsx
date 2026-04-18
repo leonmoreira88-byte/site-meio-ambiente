@@ -1,6 +1,6 @@
 export default function PostCard({ titulo, descricao, imagem, autor }) {
   return (
-    <article className="bg-white rounded-3xl overflow-hidden shadow-md hover:shadow-xl transition duration-300 border border-green-100">
+    <article className="bg-white rounded-3xl overflow-hidden shadow-md border border-green-100 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-green-700/20">
       <img
         src={imagem}
         alt={titulo}
@@ -23,5 +23,5 @@ export default function PostCard({ titulo, descricao, imagem, autor }) {
         </div>
       </div>
     </article>
-  )
+  );
 }
