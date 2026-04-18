@@ -12,6 +12,7 @@ const CODIGOS_COMISSAO = {
   Marllon: "MARLLON2026",
   Rayssa: "RAYSSA2026",
   Eduarda: "EDUARDA2026",
+  Douglas: "Douglas2026",
 }
 
 export default function Home() {
