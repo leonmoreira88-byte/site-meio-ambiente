@@ -23,7 +23,7 @@ export async function onRequestPost(context) {
         // ATUALIZADO: Usando um modelo ativo (Llama 3.3 70B ou 3.1 8B)
         model: "llama-3.3-70b-versatile", 
         messages: [
-          { role: "system", content: "Você é o Robschat, assistente do site de Meio Ambiente do IFAL." },
+          { role: "system", content: "Você é o Robschat, assistente do site de Meio ambiente da Liga estudantil do meio ambiente da escola estadual professor ernani mero." },
           ...messages
         ],
       }),
